@@ -1,0 +1,114 @@
+package com.gp.devilsantiban;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.net.VpnService;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.*;
+
+public class MainActivity extends Activity {
+    private TextView status, stats;
+    private Button btnOn, btnOff, btnToggle;
+
+    @Override
+    protected void onCreate(Bundle b) {
+        super.onCreate(b);
+        
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(40, 40, 40, 40);
+        root.setBackgroundColor(0xFF0A0A0F);
+
+        // Title
+        TextView title = new TextView(this);
+        title.setText("💀 DEVILS ANTI-BAN");
+        title.setTextSize(26);
+        title.setTextColor(0xFFFF4444);
+        title.setGravity(Gravity.CENTER);
+        title.setPadding(0, 20, 0, 10);
+        root.addView(title);
+
+        // Subtitle
+        TextView subtitle = new TextView(this);
+        subtitle.setText("Firewall + DNS Filter - No Root");
+        subtitle.setTextSize(12);
+        subtitle.setTextColor(0xFF00FFCC);
+        subtitle.setGravity(Gravity.CENTER);
+        subtitle.setPadding(0, 0, 0, 30);
+        root.addView(subtitle);
+
+        // Status
+        status = new TextView(this);
+        status.setText("⏳ OFF");
+        status.setTextSize(20);
+        status.setTextColor(0xFF888888);
+        status.setGravity(Gravity.CENTER);
+        status.setPadding(0, 20, 0, 20);
+        root.addView(status);
+
+        // Stats
+        stats = new TextView(this);
+        stats.setText("🛡️ Đã chặn: 0 domain");
+        stats.setTextSize(14);
+        stats.setTextColor(0xFFFFAA00);
+        stats.setGravity(Gravity.CENTER);
+        stats.setPadding(0, 0, 0, 30);
+        root.addView(stats);
+
+        // Start button
+        btnOn = new Button(this);
+        btnOn.setText("🔥 BẬT FIREWALL");
+        btnOn.setTextSize(16);
+        btnOn.setPadding(20, 30, 20, 30);
+        btnOn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = VpnService.prepare(MainActivity.this);
+                if (i != null) startActivityForResult(i, 1);
+                else startFirewall();
+            }
+        });
+        root.addView(btnOn);
+
+        // Stop button
+        btnOff = new Button(this);
+        btnOff.setText("⛔ TẮT FIREWALL");
+        btnOff.setTextSize(16);
+        btnOff.setPadding(20, 30, 20, 30);
+        btnOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopService(new Intent(MainActivity.this, AntiBanService.class));
+                status.setText("⏳ OFF");
+                status.setTextColor(0xFF888888);
+            }
+        });
+        root.addView(btnOff);
+
+        // Footer
+        TextView footer = new TextView(this);
+        footer.setText("© GP | Devils Will Rise\nChặn ads + tracking Garena");
+        footer.setTextSize(11);
+        footer.setTextColor(0xFF666666);
+        footer.setGravity(Gravity.CENTER);
+        footer.setPadding(0, 40, 0, 0);
+        root.addView(footer);
+
+        setContentView(root);
+    }
+
+    private void startFirewall() {
+        startService(new Intent(this, AntiBanService.class));
+        status.setText("✅ FIREWALL ACTIVE");
+        status.setTextColor(0xFF00FF00);
+        stats.setText("🛡️ Đang bảo vệ - Chặn ads + tracking");
+    }
+
+    @Override
+    protected void onActivityResult(int req, int res, Intent d) {
+        super.onActivityResult(req, res, d);
+        if (req == 1 && res == RESULT_OK) startFirewall();
+    }
+    }
